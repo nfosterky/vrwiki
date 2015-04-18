@@ -165,16 +165,22 @@ function makePage ( data, textStatus, jqXHR ) {
   // TODO: need to calculate y position so top of page appears in line with camera
   scene.add( pageObj );
 
-  console.log( pageObj.elementL.scrollHeight );
-
   pageObj.lookAt( camera.position );
+}
+
+function convertRadiansToDegrees ( radians ) {
+  return radians * ( 180 / Math.PI );
+}
+
+function convertDegreesToRadians ( degrees ) {
+  return degrees * ( Math.PI / 180 )
 }
 
 // need to rewrite to handle page removal
 function calculatePagePositions () {
   var angle = findAngle( pages.length ),
     distance = ( PAGE_WIDTH / 2 ) / Math.tan( angle / 2 ),
-    lastAngle = 90,
+    lastAngle = camera.rotation.y + Math.PI, // -PI <= angle <= PI,why need +PI?
     pageScrollY,
     pos;
 
@@ -182,26 +188,26 @@ function calculatePagePositions () {
     distance = INPUT_DISTANCE;
   }
 
+  // find page positions, move previous pages to left
   for (var i = pages.length - 1; i >= 0 ; i--) {
-    pos = findNextPagePosition( lastAngle, distance );
-    lastAngle -= angle;
-
     pageScrollY = pages[i].position.y
-    console.log(pageScrollY);
+
+    pos = findNextPagePosition( lastAngle, distance );
 
     pages[i].position.set( pos.x, pos.y, pos.z );
     pages[i].lookAt( camera.position );
 
     // reset y scroll - if done before lookAt(camera.position), page will be tilted
     pages[i].position.y = pageScrollY;
+    lastAngle += angle;
   }
 }
 
 function findNextPagePosition ( angle, distance ) {
   return {
-    x: camera.position.x + ( distance * Math.cos( angle ) ),
+    x: camera.position.x + ( distance * Math.sin( angle ) ),
     y: 0,
-    z: camera.position.z + ( distance * Math.sin( angle ) )
+    z: camera.position.z + ( distance * Math.cos( angle ) )
   };
 }
 
@@ -416,6 +422,7 @@ function addVideoFeed () {
 }
 
 function animate () {
+
   requestAnimationFrame( animate );
 
   trackUIEvents();
