@@ -43,13 +43,17 @@ THREE.DeviceOrientationControls = function ( object ) {
 
 		return function ( quaternion, alpha, beta, gamma, orient ) {
 
-			euler.set( beta, alpha, - gamma, 'YXZ' );                       // 'ZXY' for the device, but 'YXZ' for us
+			// 'ZXY' for the device, but 'YXZ' for us
+			euler.set( beta, alpha, - gamma, 'YXZ' );
 
-			quaternion.setFromEuler( euler );                               // orient the device
+			// orient the device
+			quaternion.setFromEuler( euler );
 
-			quaternion.multiply( q1 );                                      // camera looks out the back of the device, not the top
+			// camera looks out the back of the device, not the top
+			quaternion.multiply( q1 );
 
-			quaternion.multiply( q0.setFromAxisAngle( zee, - orient ) );    // adjust for screen orientation
+			// adjust for screen orientation
+			quaternion.multiply( q0.setFromAxisAngle( zee, - orient ) );
 
 		}
 
