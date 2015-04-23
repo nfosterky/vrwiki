@@ -83,7 +83,12 @@ function init ( searchTerm ) {
   scene.add( camera );
 
   // add view controls
-  controls = new THREE.DeviceOrientationControls( camera );
+  if ( window.ondeviceorientation || window.onorientationchange ) {
+    controls = new THREE.DeviceOrientationControls( camera );
+
+  } else {
+    camera.rotation.z = -Math.PI / 2;
+  }
 
   // calculate pointer size
   pointerRadius = viewportWidth * 0.01 + 'px';
@@ -180,7 +185,8 @@ function convertDegreesToRadians ( degrees ) {
 function calculatePagePositions () {
   var angle = findAngle( pages.length ),
     distance = ( PAGE_WIDTH / 2 ) / Math.tan( angle / 2 ),
-    lastAngle = camera.rotation.y + Math.PI, // -PI <= angle <= PI,why need +PI?
+    // add pi to bring range from (-180 -> 180) to (0 -> 360)
+    lastAngle = camera.rotation.y + Math.PI, // -PI <= angle <= PI
     pageScrollY,
     pos;
 
@@ -427,7 +433,9 @@ function animate () {
 
   trackUIEvents();
 
-  controls.update();
+  if ( window.ondeviceorientation || window.onorientationchange ) {
+    controls.update();
+  }
 
   renderer.render( scene, camera );
 
@@ -447,10 +455,10 @@ function animate () {
 }
 
 window.addEventListener( "keydown", function ( event ) {
-
+  
   // return / enter - hide keyboard
   if ( event.keyCode === 13 ) {
-    event.srcElement.blur();
+    event.target.blur();
     document.getElementById( "searchButton" ).click();
   }
 }, true );
